@@ -33,7 +33,10 @@ type Logger struct {
 }
 
 func (l *Logger) FATAL(source string, messages ...string) {
-	l.write(FATAL, source, messages)
+	if len(messages) > 1 {
+		l.write(FATAL, source, messages[:len(messages)-1])
+	}
+	log.Fatalf("[%s] [%s] %s\n", logLevels[FATAL], source, messages[len(messages)-1])
 }
 
 func (l *Logger) SYSTEM(source string, messages ...string) {
@@ -74,14 +77,9 @@ func (l *Logger) GetLevel() int {
 }
 
 func (l *Logger) write(level int, source string, messages []string) {
-	currentLevel := l.GetLevel()
-	if currentLevel >= level {
+	if level <= SYSTEM || l.GetLevel() >= level {
 		for _, message := range messages {
-			if level == FATAL {
-				log.Fatalf("[%s] [%s] %s\n", logLevels[level], source, message)
-			} else {
-				log.Printf("[%s] [%s] %s\n", logLevels[level], source, message)
-			}
+			log.Printf("[%s] [%s] %s\n", logLevels[level], source, message)
 		}
 	}
 }
