@@ -32,6 +32,23 @@ type Logger struct {
 	level int
 }
 
+func (l *Logger) GetLevel() int {
+	l.RLock()
+	defer l.RUnlock()
+	return l.level
+}
+
+func (l *Logger) SetLevel(level int) {
+	if level < 1 || level >= len(logLevels) {
+		l.SYSTEM("LOG", fmt.Sprintf("cannot set log level to %d", level))
+	} else {
+		l.Lock()
+		l.level = level
+		l.Unlock()
+		l.SYSTEM("LOG", fmt.Sprintf("setting log level to %d (%s)", level, logLevels[level]))
+	}
+}
+
 func (l *Logger) FATAL(source string, messages ...string) {
 	if len(messages) > 1 {
 		l.write(FATAL, source, messages[:len(messages)-1])
@@ -57,23 +74,6 @@ func (l *Logger) INFO(source string, messages ...string) {
 
 func (l *Logger) DEBUG(source string, messages ...string) {
 	l.write(DEBUG, source, messages)
-}
-
-func (l *Logger) SetLevel(level int) {
-	if level < 1 || level >= len(logLevels) {
-		l.SYSTEM("LOG", fmt.Sprintf("cannot set log level to %d", level))
-	} else {
-		l.Lock()
-		l.level = level
-		l.Unlock()
-		l.SYSTEM("LOG", fmt.Sprintf("setting log level to %d (%s)", level, logLevels[level]))
-	}
-}
-
-func (l *Logger) GetLevel() int {
-	l.RLock()
-	defer l.RUnlock()
-	return l.level
 }
 
 func (l *Logger) write(level int, source string, messages []string) {
