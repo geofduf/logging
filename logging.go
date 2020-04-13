@@ -30,6 +30,7 @@ func GetLogger() *Logger {
 type Logger struct {
 	sync.RWMutex
 	level int
+	listen bool
 }
 
 func (l *Logger) GetLevel() int {
@@ -84,6 +85,20 @@ func (l *Logger) write(level int, source string, messages []string) {
 	}
 }
 
+func (l *Logger) ListenForSignal() {
+	var message string
+	l.Lock()
+	if l.listen {
+		message = "cannot register signal handler more than once"
+	} else {
+		go l.signalHandler()
+		l.listen = true
+		message = "registering signal handler"
+	}
+	l.Unlock()
+	l.SYSTEM("LOG", message)
+}
+
 func (l *Logger) signalHandler() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGUSR1, syscall.SIGUSR2)
@@ -102,5 +117,5 @@ func (l *Logger) signalHandler() {
 func init() {
 	logger = new(Logger)
 	logger.level = defaultLevel
-	go logger.signalHandler()
+	logger.listen = false
 }
