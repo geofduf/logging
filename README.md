@@ -1,1 +1,1 @@
-# trying go import
+# Simple logging
