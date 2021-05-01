@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	FATAL = iota
-	SYSTEM
-	ERROR
-	WARNING
-	INFO
-	DEBUG
-	defaultLevel int = WARNING
+	Fatal = iota
+	System
+	Error
+	Warning
+	Info
+	Debug
+	defaultLevel int = Warning
 )
 
 var logLevels [6]string = [6]string{"FTL", "SYS", "ERR", "WNG", "INF", "DBG"}
@@ -41,44 +41,44 @@ func (l *Logger) GetLevel() int {
 
 func (l *Logger) SetLevel(level int) {
 	if level < 1 || level >= len(logLevels) {
-		l.SYSTEM("LOG", fmt.Sprintf("cannot set log level to %d", level))
+		l.System("LOG", fmt.Sprintf("cannot set log level to %d", level))
 	} else {
 		l.Lock()
 		l.level = level
 		l.Unlock()
-		l.SYSTEM("LOG", fmt.Sprintf("setting log level to %d (%s)", level, logLevels[level]))
+		l.System("LOG", fmt.Sprintf("setting log level to %d (%s)", level, logLevels[level]))
 	}
 }
 
-func (l *Logger) FATAL(source string, messages ...string) {
+func (l *Logger) Fatal(source string, messages ...string) {
 	if len(messages) > 1 {
-		l.write(FATAL, source, messages[:len(messages)-1])
+		l.write(Fatal, source, messages[:len(messages)-1])
 	}
-	log.Fatalf("[%s] [%s] %s\n", logLevels[FATAL], source, messages[len(messages)-1])
+	log.Fatalf("[%s] [%s] %s\n", logLevels[Fatal], source, messages[len(messages)-1])
 }
 
-func (l *Logger) SYSTEM(source string, messages ...string) {
-	l.write(SYSTEM, source, messages)
+func (l *Logger) System(source string, messages ...string) {
+	l.write(System, source, messages)
 }
 
-func (l *Logger) ERROR(source string, messages ...string) {
-	l.write(ERROR, source, messages)
+func (l *Logger) Error(source string, messages ...string) {
+	l.write(Error, source, messages)
 }
 
-func (l *Logger) WARNING(source string, messages ...string) {
-	l.write(WARNING, source, messages)
+func (l *Logger) Warning(source string, messages ...string) {
+	l.write(Warning, source, messages)
 }
 
-func (l *Logger) INFO(source string, messages ...string) {
-	l.write(INFO, source, messages)
+func (l *Logger) Info(source string, messages ...string) {
+	l.write(Info, source, messages)
 }
 
-func (l *Logger) DEBUG(source string, messages ...string) {
-	l.write(DEBUG, source, messages)
+func (l *Logger) Debug(source string, messages ...string) {
+	l.write(Debug, source, messages)
 }
 
 func (l *Logger) write(level int, source string, messages []string) {
-	if level <= SYSTEM || l.GetLevel() >= level {
+	if level <= System || l.GetLevel() >= level {
 		for _, message := range messages {
 			log.Printf("[%s] [%s] %s\n", logLevels[level], source, message)
 		}
@@ -96,7 +96,7 @@ func (l *Logger) ListenForSignal() {
 		message = "registering signal handler"
 	}
 	l.Unlock()
-	l.SYSTEM("LOG", message)
+	l.System("LOG", message)
 }
 
 func (l *Logger) signalHandler() {
