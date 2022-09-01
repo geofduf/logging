@@ -49,10 +49,7 @@ func (l *logger) SetLevel(level int) {
 }
 
 func (l *logger) Fatal(source string, messages ...string) {
-	if len(messages) > 1 {
-		l.write(Fatal, source, messages[:len(messages)-1])
-	}
-	log.Fatalf("[%s] [%s] %s\n", labels[Fatal], source, messages[len(messages)-1])
+	l.write(Fatal, source, messages)
 }
 
 func (l *logger) System(source string, messages ...string) {
