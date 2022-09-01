@@ -38,7 +38,7 @@ func (l *logger) GetLevel() int {
 }
 
 func (l *logger) SetLevel(level int) {
-	if level < 1 || level >= len(labels) {
+	if level < System || level > Debug {
 		l.System("LOG", fmt.Sprintf("cannot set log level to %d", level))
 	} else {
 		l.mu.Lock()
