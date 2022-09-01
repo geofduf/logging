@@ -19,7 +19,7 @@ const (
 	defaultLevel int = Warning
 )
 
-var logLevels [6]string = [6]string{"FTL", "SYS", "ERR", "WNG", "INF", "DBG"}
+var labels [6]string = [6]string{"FATAL", "SYSTEM", "ERROR", "WARNING", "INFO", "DEBUG"}
 
 type logger struct {
 	mu     sync.RWMutex
@@ -38,13 +38,13 @@ func (l *logger) GetLevel() int {
 }
 
 func (l *logger) SetLevel(level int) {
-	if level < 1 || level >= len(logLevels) {
+	if level < 1 || level >= len(labels) {
 		l.System("LOG", fmt.Sprintf("cannot set log level to %d", level))
 	} else {
 		l.mu.Lock()
 		l.level = level
 		l.mu.Unlock()
-		l.System("LOG", fmt.Sprintf("setting log level to %d (%s)", level, logLevels[level]))
+		l.System("LOG", fmt.Sprintf("setting log level to %d (%s)", level, labels[level]))
 	}
 }
 
@@ -52,7 +52,7 @@ func (l *logger) Fatal(source string, messages ...string) {
 	if len(messages) > 1 {
 		l.write(Fatal, source, messages[:len(messages)-1])
 	}
-	log.Fatalf("[%s] [%s] %s\n", logLevels[Fatal], source, messages[len(messages)-1])
+	log.Fatalf("[%s] [%s] %s\n", labels[Fatal], source, messages[len(messages)-1])
 }
 
 func (l *logger) System(source string, messages ...string) {
@@ -78,7 +78,7 @@ func (l *logger) Debug(source string, messages ...string) {
 func (l *logger) write(level int, source string, messages []string) {
 	if level <= System || l.GetLevel() >= level {
 		for _, message := range messages {
-			log.Printf("[%s] [%s] %s\n", logLevels[level], source, message)
+			log.Printf("[%s] [%s] %s\n", labels[level], source, message)
 		}
 	}
 }
